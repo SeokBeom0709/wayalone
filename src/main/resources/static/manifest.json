@@ -1,0 +1,10 @@
+{
+  "name": "WAYALONE",
+  "short_name": "WAYALONE",
+  "description": "혼밥 가능한 곳, 혼자 가기 좋은 스팟, 같이 떠날 메이트까지 한 번에",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf4ea",
+  "theme_color": "#fbf4ea",
+  "lang": "ko"
+}
