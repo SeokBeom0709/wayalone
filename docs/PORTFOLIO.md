@@ -8,7 +8,7 @@
 | 담당 | 기획, 백엔드, 프론트엔드, 관리자 도구, 테스트 |
 | 스택 | Java 17, Spring Boot 4, Spring Data JPA, MySQL(운영) / H2(개발), Vanilla JS, 네이버 지도·카카오 로컬 API |
 | 규모 | REST API 43개, 엔티티 15개, 통합 테스트 50개, 백엔드 약 5,200줄, 프론트 약 2,700줄 |
-| 저장소 | `GitHub URL 기입` |
+| 저장소 | https://github.com/SeokBeom0709/wayalone |
 | 데모 | `배포 후 URL 기입` (현재는 로컬 실행) |
 
 ## 만든 이유
