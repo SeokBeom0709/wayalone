@@ -9,6 +9,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,6 +47,48 @@ class PlaceApiTests {
         assertThat(body).contains("YES");
         assertThat(body).doesNotContain("\"soloDining\":\"NO\"");
         assertThat(body).doesNotContain("\"soloDining\":\"COUNTER\"");
+    }
+
+    private static List<Integer> distances(String body) {
+        Matcher matcher = Pattern.compile("\"distanceMeters\":(\\d+)").matcher(body);
+        List<Integer> distances = new ArrayList<>();
+        while (matcher.find()) {
+            distances.add(Integer.parseInt(matcher.group(1)));
+        }
+        return distances;
+    }
+
+    @Test
+    void aroundReturnsPlacesInsideRadiusNearestFirst() {
+        // 시드 데이터 중 첫 번째 장소의 좌표 (37.5663, 126.9910)
+        String body = client().get()
+                .uri("/api/places/around?lat=37.5663&lng=126.9910&radius=3000")
+                .retrieve().body(String.class);
+
+        List<Integer> distances = distances(body);
+        assertThat(distances).hasSizeGreaterThan(1);
+        assertThat(distances.get(0)).as("기준 위치 바로 그 장소").isZero();
+        assertThat(distances).as("가까운 순").isSorted();
+        assertThat(distances).as("반경 3km 안").allMatch(d -> d <= 3000);
+        assertThat(body).as("부산 장소는 제외").doesNotContain("해운대");
+    }
+
+    @Test
+    void aroundExcludesPlacesOutsideSmallRadius() {
+        String body = client().get()
+                .uri("/api/places/around?lat=37.5663&lng=126.9910&radius=100")
+                .retrieve().body(String.class);
+
+        assertThat(distances(body)).containsExactly(0);
+    }
+
+    @Test
+    void aroundRejectsInvalidCoordinates() {
+        assertThatThrownBy(() -> client().get()
+                .uri("/api/places/around?lat=123&lng=127")
+                .retrieve()
+                .toBodilessEntity())
+                .isInstanceOf(HttpClientErrorException.BadRequest.class);
     }
 
     @Test

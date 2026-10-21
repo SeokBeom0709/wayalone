@@ -1,6 +1,7 @@
 package com.example.demo.place;
 
 import com.example.demo.place.dto.LocationResponse;
+import com.example.demo.place.dto.PlaceAroundResponse;
 import com.example.demo.place.dto.NearbyResponse;
 import com.example.demo.place.dto.PlaceResponse;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,20 @@ public class PlaceController {
         }
         int safeRadius = Math.max(100, Math.min(radius, 20000));
         return kakaoLocalClient.nearbyRestaurants(lat, lng, safeRadius, Math.max(page, 1));
+    }
+
+    /** 우리 DB 에 등록된 혼밥/혼놀 장소 중 내 주변 것을 가까운 순으로. (카카오 주변 식당은 /nearby) */
+    @GetMapping("/around")
+    public List<PlaceAroundResponse> around(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam(defaultValue = "1000") int radius,
+            @RequestParam(defaultValue = "30") int limit
+    ) {
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "위치 좌표가 올바르지 않아요.");
+        }
+        return placeService.around(lat, lng, radius, limit);
     }
 
     @GetMapping("/locations")
