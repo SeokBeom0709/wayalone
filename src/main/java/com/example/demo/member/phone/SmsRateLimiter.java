@@ -1,9 +1,7 @@
 package com.example.demo.member.phone;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +25,8 @@ public class SmsRateLimiter {
         this.maxPerHour = maxPerHour;
     }
 
-    public void acquire(String ip) {
+    /** 이번 요청을 센 뒤 한도 안이면 true. */
+    public boolean tryAcquire(String ip) {
         if (windows.size() > MAX_TRACKED) {
             windows.clear();
         }
@@ -36,9 +35,6 @@ public class SmsRateLimiter {
                 old == null || old.since().plus(WINDOW).isBefore(now)
                         ? new Window(1, now)
                         : new Window(old.count() + 1, old.since()));
-        if (updated.count() > maxPerHour) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
-                    "인증번호 요청이 너무 많아요. 잠시 후 다시 시도해 주세요.");
-        }
+        return updated.count() <= maxPerHour;
     }
 }

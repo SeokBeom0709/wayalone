@@ -19,5 +19,7 @@ if (-not $env:ADMIN_PASSWORD) { $env:ADMIN_PASSWORD = "admin" }
 # Local verification only: log provider prints codes to the server log instead of sending SMS.
 if (-not $env:SMS_PROVIDER)   { $env:SMS_PROVIDER   = "log" }
 if (-not $env:PORT)           { $env:PORT           = "8081" }
+# Verification codes / one-time tokens live in Redis (docker compose up -d starts it). Use VERIFICATION_STORE=db to skip Redis.
+if (-not $env:VERIFICATION_STORE) { $env:VERIFICATION_STORE = "redis" }
 
 .\gradlew.bat bootRun
