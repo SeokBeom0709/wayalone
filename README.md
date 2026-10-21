@@ -6,6 +6,7 @@
 
 - 포트폴리오: [docs/PORTFOLIO.md](docs/PORTFOLIO.md)
 - 설계 노트: [docs/DESIGN.md](docs/DESIGN.md) / 트러블슈팅: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- 성능·동시성 개선 기록(측정값): [docs/PERFORMANCE.md](docs/PERFORMANCE.md)
 - 스택: Java 17 · Spring Boot 4.1 · Spring Data JPA · H2/MySQL · Vanilla JS · 네이버 지도 · 카카오 로컬 API
 
 ![내 주변 식당](docs/images/01-nearby-naver.png)
@@ -32,12 +33,14 @@ cd wayalone
 테스트
 
 ```bash
-./gradlew test             # 통합 테스트 50개, 외부 키 없이 실행됩니다
+./gradlew test             # 테스트 68개. 외부 키 없이 실행됩니다 (Redis 테스트 9개는 Redis가 없으면 건너뜀)
 ```
+
+Redis 테스트까지 실행하려면 `docker compose up -d redis` 후 `.env`의 `REDIS_PASSWORD` 값을 `REDIS_TEST_PASSWORD` 환경변수로 넘기세요. (PowerShell: `$env:REDIS_TEST_PASSWORD="값"; .\gradlew.bat test`)
 
 ## MySQL로 실행하려면
 
-`.env.example`을 `.env`로 복사해 값을 채우고 `docker compose up -d`로 DB를 띄운 뒤, Windows에서는 `run-prod-local.ps1`을 실행합니다. 이 스크립트는 `prod` 프로필과 포트 8081을 사용하며, 관리자 계정은 `admin` / `admin`으로 만들어집니다(로컬 전용).
+`.env.example`을 `.env`로 복사해 값을 채우고 `docker compose up -d`로 DB를 띄운 뒤, Windows에서는 `run-prod-local.ps1`을 실행합니다. 이 스크립트는 `prod` 프로필과 포트 8081을 사용하며, 관리자 계정은 `admin` / `admin`으로 만들어집니다(로컬 전용). 인증번호와 1회용 토큰은 `docker compose`가 함께 띄우는 Redis에 저장합니다(`VERIFICATION_STORE=db`로 두면 Redis 없이 DB에 저장).
 
 ## 환경변수
 
@@ -49,6 +52,8 @@ cd wayalone
 | `PHONE_PEPPER` | 운영 필수 | 휴대폰 번호 HMAC 비밀값 |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | 운영 필수 | 시작 시 생성되는 관리자 계정 |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `CORS_ORIGINS` | 운영(`prod`) | MySQL 접속 정보, 허용 출처 |
+| `VERIFICATION_STORE` | | 인증번호·1회용 토큰 저장소: `db`(기본) / `redis` |
+| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` | `redis`일 때 | Redis 접속 정보 |
 
 네이버 지도 Client ID는 `static/js/app.js`의 `NAVER_MAP_CLIENT_ID`에 있으며, 네이버 클라우드 콘솔에서 **Web 서비스 URL**에 접속 주소를 등록해야 합니다. 등록하지 않은 주소에서는 OpenStreetMap으로 자동 전환됩니다.
 
