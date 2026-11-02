@@ -49,6 +49,7 @@
 flowchart LR
     Browser["브라우저 (Vanilla JS SPA)"] --> API["Spring Boot REST API"]
     API --> DB[(MySQL / H2)]
+    API -.선택.-> Redis[(Redis: 인증번호·토큰 TTL)]
     API --> Kakao["카카오 로컬 API (서버에서만 호출)"]
     API --> SMS["문자 발송 (개발: 로그 / 운영: Solapi)"]
     Browser --> Naver["네이버 지도 JS (실패 시 OpenStreetMap)"]
